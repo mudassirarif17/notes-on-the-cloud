@@ -3,7 +3,8 @@ const User = require('../models/User')
 const router = express.Router();
 const { body , validationResult } = require('express-validator');
 var CryptoJS = require("crypto-js")
-
+var jwt = require('jsonwebtoken');
+const JWT_SECRET = "jwtsecret"
 
 // CREATE A USER BY USING THIS API : /api/auth/createuser  NO-LOGIN-REQUIRED
 router.post('/createuser' ,[
@@ -28,14 +29,54 @@ router.post('/createuser' ,[
         // password : req.body.password,
         password: CryptoJS.AES.encrypt(req.body.password, 'secret123').toString() 
     })
-    res.json(user)
+    const data={
+        user:{
+            id : user.id
+        }
+    }
+    var token = jwt.sign( data , JWT_SECRET);
+    res.json({token})
 } catch (error) {
     console.error(error.message)
-    res.status(500).send({error : "Some error occured"})
+    res.status(500).send({error : "Internal Server error occured"})
 } 
 })
 
 
 // LOGIN A USER BY USING THIS API : /api/auth/login  NO-LOGIN-REQUIRED
+router.post('/login' ,[
+    body('email','Email must be unique').isEmail(),
+    body('password','password can not be null').exists()
+] , async (req,res)=>{
+    const errors = validationResult(req);
+    if(!errors.isEmpty()){
+        return res.status(400).json({errors: errors.array()})
+    }
+    const {email , password} = req.body;
+    try {
+    let user = await User.findOne({email})
+    if(!user){
+        res.status(400).json({error : "Invalid credentials"})
+    }
+
+    const bytes = CryptoJS.AES.decrypt(user.password, 'secret123');
+    var decryptedPass = bytes.toString(CryptoJS.enc.Utf8);
+    if(req.body.password != decryptedPass){
+        res.status(400).json({error : "Invalid credentials"})
+    }
+    
+    const data={
+        user:{
+            id : user.id
+        }
+    }
+    var token = jwt.sign( data , JWT_SECRET);
+    res.json({token})
+} catch (error) {
+    console.error(error.message)
+    res.status(500).send({error : "Internal Server error occured"})
+} 
+})
+
 
 module.exports = router;
