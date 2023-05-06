@@ -1,0 +1,95 @@
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+import { useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
+function Signup() {
+  const [name, setName] = useState();
+  const [email, setEmail] = useState();
+  const [password, setPassword] = useState();
+  const changeHandler = (e) => {
+    if (e.target.name === "name") {
+      setName(e.target.value);
+    }
+    if (e.target.name === "email") {
+      setEmail(e.target.value);
+    }
+    if (e.target.name === "password") {
+      setPassword(e.target.value);
+    }
+  }
+
+  const submitHandler = async (e) => {
+    e.preventDefault();
+    let data = await { name, email, password }
+    let res = await fetch(`http://localhost:5000/api/auth/createuser`, {
+      method: 'POST', // or 'PUT'
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+    let response = await res.json()
+    // console.log('Success:', data);
+    setName("")
+    setEmail("")
+    setPassword("")
+    toast.success('Your Account has been created successfully!', {
+      position: "top-left",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+      });
+    if (response.success) {
+      localStorage.setItem('token', response.token)
+    }
+  }
+
+  return (
+    <>
+      <ToastContainer
+        position="top-left"
+        autoClose={ 1 }
+        hideProgressBar={ false }
+        newestOnTop={ false }
+        closeOnClick
+        rtl={ false }
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+      <Form className='container my-5' onSubmit={ submitHandler }>
+        <h1>Sign up</h1>
+        <Form.Group className="mb-3" controlId="formBasicName">
+          <Form.Label>Name</Form.Label>
+          <Form.Control name="name" value={ name } onChange={ changeHandler } type="text" placeholder="Enter name" />
+        </Form.Group>
+
+        <Form.Group className="mb-3" controlId="formBasicEmail">
+          <Form.Label>Email address</Form.Label>
+          <Form.Control name='email' value={ email } onChange={ changeHandler } type="email" placeholder="Enter email" />
+          <Form.Text className="text-muted">
+            We'll never share your email with anyone else.
+          </Form.Text>
+        </Form.Group>
+
+        <Form.Group className="mb-3" controlId="formBasicPassword">
+          <Form.Label>Password</Form.Label>
+          <Form.Control name='password' value={ password } onChange={ changeHandler } type="password" placeholder="Password" />
+        </Form.Group>
+        <Button variant="primary" type="submit">
+          Submit
+        </Button>
+      </Form>
+    </>
+  );
+}
+
+export default Signup;
