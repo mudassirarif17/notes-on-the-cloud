@@ -1,11 +1,13 @@
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
-import { useState } from 'react';
+import react , {useEffect , useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
 
 
 function Signup() {
+  const navigate = useNavigate ();
   const [name, setName] = useState();
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
@@ -23,7 +25,7 @@ function Signup() {
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    let data = await { name, email, password }
+    let data = { name, email, password }
     let res = await fetch(`http://localhost:5000/api/auth/createuser`, {
       method: 'POST', // or 'PUT'
       headers: {
@@ -36,9 +38,10 @@ function Signup() {
     setName("")
     setEmail("")
     setPassword("")
+    // console.log(response)
     toast.success('Your Account has been created successfully!', {
       position: "top-left",
-      autoClose: 5000,
+      autoClose: 3000,
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,
@@ -46,8 +49,11 @@ function Signup() {
       progress: undefined,
       theme: "light",
       });
-    if (response.success) {
-      localStorage.setItem('token', response.token)
+    if (response) {
+      setTimeout(() => {
+        localStorage.setItem("token" , response.token)
+        navigate('/');
+      }, 5000);
     }
   }
 
@@ -55,7 +61,7 @@ function Signup() {
     <>
       <ToastContainer
         position="top-left"
-        autoClose={ 1 }
+        autoClose={ 3000 }
         hideProgressBar={ false }
         newestOnTop={ false }
         closeOnClick
