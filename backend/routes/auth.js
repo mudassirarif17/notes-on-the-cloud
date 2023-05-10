@@ -79,7 +79,7 @@ router.post('/login', [
     }
 })
 
-//3. LOGIN A USER BY USING THIS API : /api/auth/login  NO-LOGIN-REQUIRED
+//3. LOGIN A USER BY USING THIS API : /api/auth/getuser  LOGIN-REQUIRED
 router.post('/getuser', fetchuser, async (req, res) => {
     try {
         let userId = req.user.id;
