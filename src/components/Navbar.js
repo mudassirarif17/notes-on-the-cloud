@@ -15,7 +15,7 @@ function BasicNav() {
   }
   return (
     <Navbar bg="light" expand="lg">
-      <Container>
+      <Container className='sticky'>
         <Navbar.Brand href="#home">iNoteBook</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
